@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>CV Evaluation</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f2f2f2;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+            }
+            
+            .header {
+                background-color: #4CAF50;
+                padding: 10px 0;
+                text-align: center;
+            }
+            .logo {
+                margin-top: 10px;
+            }
+            .logo img {
+                width: 80px;
+                height: auto;
+            }
+            
+            .container {
+                width: 80%;
+                max-width: 800px;
+                padding: 20px;
+                background-color: #fff;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                border-radius: 10px;
+            }
+            
+            .signup-form {
+                margin-bottom: 20px;
+            }
+            #name, #email {
+                width: 100%;
+                margin-bottom: 10px;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+            .signup-button {
+                display: block;
+                margin-top: 10px;
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+            
+            .upload-section {
+                border: 1px solid #ccc;
+                padding: 20px;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+            .upload-button {
+                display: inline-block;
+                margin-top: 10px;
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+            #cv-upload {
+                display: none;
+            }
+            #cv-file-name {
+                font-size: 14px;
+                color: #666;
+                margin-top: 5px;
+            }
+            
+            .questionnaire {
+                display: none;
+            }
+            .job-description-section {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+            }
+            .job-description {
+                flex: 1;
+                padding: 20px;
+                border-right: 1px solid #ccc;
+            }
+            .job-description p {
+                font-size: 18px;
+                line-height: 1.6;
+                color: #444;
+            }
+            .job-description-container {
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+            .questions {
+                flex: 1;
+                padding: 20px;
+            }
+            .question {
+                margin-bottom: 20px;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                background-color: #f9f9f9;
+            }
+            .question label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+            }
+            .answer {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+            .submit-button {
+                margin-top: 20px;
+                background-color: #4CAF50;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                font-size: 16px;
+                cursor: pointer;
+            }
+            .confirmation-message {
+                display: none;
+                margin-top: 20px;
+                font-size: 16px;
+                color: #4CAF50;
+                text-align: center;
+            }
+        </style>
+    </head>
+<body>
+    <div class="signup-container">
+        <h2>Sign Up</h2>
+        <form id="signup-form">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <div class="job-description-container" style="display: none;">
+        <h2>Job Description</h2>
+        <p id="Job_description_text"></pid></p>
+    </div>
+    
+    <div class="upload-container" id="upload-container" style="display: none;">
+        <h2>Upload CV</h2>
+        <input type="file" id="cv-upload" accept=".pdf, .doc, .docx, .txt" onchange="displayFileName()">
+        <label for="cv-upload" class="upload-button">Choose File</label>
+        <div id="cv-file-name"></div>
+    </div>
+
+    <div class="questionnaire" id="questionnaire" style="display: none;">
+        <h2>Questionnaire</h2>
+        <div id="chatbox"></div>
+        <button class="submit-button" onclick="submitQuestionnaire()">Submit</button>
+    </div>
+
+    <div class="confirmation-message" id="confirmation-message" style="display: none;">
+        Thank you for submitting the questionnaire. We will evaluate your responses and notify you via email if you are selected for the next round of interviews. You will be redirected to the signup page shortly.
+    </div>
+
+    <script>
+        document.getElementById("signup-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const name = formData.get("name");
+            const email = formData.get("email");
+
+            fetch('/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: name, email: email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById("Job_description_text").textContent = `Job Description:\n${data.job_description}`;
+                    document.querySelector(".job-description-container").style.display = 'block';
+                    document.querySelector(".signup-container").style.display = 'none';
+                    document.getElementById('upload-container').style.display = 'block';
+                    displayChatbox(); 
+                }
+            })
+            .catch(error => console.error('Error submitting the form:', error));
+        });
+
+        function displayFileName() {
+            const fileInput = document.getElementById("cv-upload");
+            const fileName = fileInput.files[0].name;
+            document.getElementById("cv-file-name").innerText = fileName;
+        }
+
+        function submitQuestionnaire() {
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+            const cvFile = document.getElementById("cv-upload").files[0];
+            const answers = [];
+
+            for (let i = 1; i <= 5; i++) {
+                const answerInput = document.querySelector(`[name="answer${i}"]`);
+                if (answerInput) {
+                    answers.push(answerInput.value);
+                }
+            }
+
+            const formData = new FormData();
+            formData.append("name", name);
+            formData.append("email", email);
+            formData.append("cv", cvFile);
+            formData.append("answer1", answers[0]); 
+            formData.append("answer2", answers[1]); 
+            formData.append("answer3", answers[2]); 
+            formData.append("answer4", answers[3]); 
+            formData.append("answer5", answers[4]); 
+
+            fetch('/submit_questionnaire', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                
+                }
+            })
+            .catch(error => console.error('Error submitting the questionnaire:', error));
+        }
+
+        function displayChatbox() {
+            const chatboxDiv = document.getElementById("chatbox");
+            chatboxDiv.innerHTML = ""; 
+
+            const questions = [
+                "How many years of experience do you have in Python?",
+                "How many years of experience do you have in Django?",
+                "Have you worked with React?",
+                "Do you have any experience in Java?",
+                "Tell me about your full-stack development experience."
+            ];
+
+            let chatMessages = "What are you doing?";
+            questions.forEach((question, index) => {
+                chatMessages += `<div class="question">
+                                    <p><strong>Question ${index + 1}:</strong></p>
+                                    <p>${question}</p>
+                                    <input type="number" name="answer${index + 1}" required>
+                                </div>`;
+            });
+
+            chatboxDiv.innerHTML = chatMessages;
+            document.getElementById("questionnaire").style.display = "block"; // Display the chatbox
+        }
+    </script>
+</body>
+</html>
