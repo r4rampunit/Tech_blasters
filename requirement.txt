@@ -1,0 +1,12 @@
+pip install flask google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client python-dotenv PyPDF2 transformers
+
+
+pip install python-dotenv
+
+
+pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client Flask
+pip install flask transformers PyPDF2 docx
+pip install email
+pip install torch
+flask run
+****** Running on http://127.0.0.1:5000/ 
